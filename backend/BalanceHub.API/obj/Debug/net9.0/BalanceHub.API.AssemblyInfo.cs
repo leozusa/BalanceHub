@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BalanceHub.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8002553431cdf34a6b874fb7410e6a181222e61f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2fd0f2bc16f7fc4aa25e121d5898654fb12da048")]
 [assembly: System.Reflection.AssemblyProductAttribute("BalanceHub.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BalanceHub.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
