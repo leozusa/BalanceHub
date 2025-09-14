@@ -9,13 +9,13 @@
   - [x] 1.4 Configure local development environment dependencies
   - [x] 1.5 Verify both Angular and API projects build successfully
 
-- [ ] 2. **Implement Database Schema**
-  - [ ] 2.1 Write tests for Users entity model (Entity Framework mapping)
-  - [ ] 2.2 Create Entity Framework migration for Users table
-  - [ ] 2.3 Implement User model with all required properties and validations
-  - [ ] 2.4 Add database indexes for email, role, and EntraId lookups
-  - [ ] 2.5 Apply migration and verify database schema creation
-  - [ ] 2.6 Verify all tests pass
+- [x] 2. **Implement Database Schema**
+  - [x] 2.1 Write tests for Users entity model (Entity Framework mapping)
+  - [x] 2.2 Create Entity Framework migration for Users table
+  - [x] 2.3 Implement User model with all required properties and validations
+  - [x] 2.4 Add database indexes for email, role, and EntraId lookups
+  - [x] 2.5 Apply migration and verify database schema creation
+  - [x] 2.6 Verify all tests pass
 
 - [ ] 3. **Develop Authentication API**
   - [ ] 3.1 Write tests for AuthController login endpoint
