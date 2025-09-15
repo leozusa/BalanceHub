@@ -1,0 +1,20 @@
+{
+  "build": {
+    "watchPatterns": [
+      "**/*.cs",
+      "**/*.csproj",
+      "appsettings*.json"
+    ]
+  },
+  "deploy": {
+    "startCommand": "dotnet BalanceHub.API.dll --project ./BalanceHub.API.csproj",
+    "health": {
+      "maxRetries": 10,
+      "interval": 10000
+    },
+    "restartPolicy": {
+      "maxRestarts": 10,
+      "interval": 10000
+    }
+  }
+}

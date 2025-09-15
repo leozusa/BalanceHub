@@ -1,0 +1,9 @@
+/Users/leozusa/Documents/GitHub/BalanceHub/backend/BalanceHub.API.Tests/bin/Debug/net9.0/.msCoverageSourceRootsMapping_BalanceHub.API.Tests
+/Users/leozusa/Documents/GitHub/BalanceHub/backend/BalanceHub.API.Tests/bin/Debug/net9.0/CoverletSourceRootsMapping_BalanceHub.API.Tests
+/Users/leozusa/Documents/GitHub/BalanceHub/backend/BalanceHub.API.Tests/obj/Debug/net9.0/BalanceHub.API.Tests.csproj.AssemblyReference.cache
+/Users/leozusa/Documents/GitHub/BalanceHub/backend/BalanceHub.API.Tests/obj/Debug/net9.0/BalanceHub.API.Tests.GeneratedMSBuildEditorConfig.editorconfig
+/Users/leozusa/Documents/GitHub/BalanceHub/backend/BalanceHub.API.Tests/obj/Debug/net9.0/BalanceHub.API.Tests.AssemblyInfoInputs.cache
+/Users/leozusa/Documents/GitHub/BalanceHub/backend/BalanceHub.API.Tests/obj/Debug/net9.0/BalanceHub.API.Tests.AssemblyInfo.cs
+/Users/leozusa/Documents/GitHub/BalanceHub/backend/BalanceHub.API.Tests/obj/Debug/net9.0/BalanceHub.API.Tests.csproj.CoreCompileInputs.cache
+/Users/leozusa/Documents/GitHub/BalanceHub/backend/BalanceHub.API.Tests/obj/Debug/net9.0/BalanceHub.API.Tests.sourcelink.json
+/Users/leozusa/Documents/GitHub/BalanceHub/backend/BalanceHub.API.Tests/obj/Debug/net9.0/MvcTestingAppManifest.json

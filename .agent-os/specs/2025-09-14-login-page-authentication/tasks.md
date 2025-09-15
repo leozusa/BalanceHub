@@ -18,10 +18,10 @@
   - [x] 2.6 Verify all tests pass
 
 - [ ] 3. **Develop Authentication API**
-  - [ ] 3.1 Write tests for AuthController login endpoint
-  - [ ] 3.2 Implement AuthController with JWT token service integration
-  - [ ] 3.3 Add email/password validation and user lookup logic
-  - [ ] 3.4 Implement JWT token generation with role-based claims
+- [x] 3.1 Write tests for AuthController login endpoint
+- [x] 3.2 Implement AuthController with JWT token service integration
+- [x] 3.3 Add email/password validation and user lookup logic
+- [x] 3.4 Implement JWT token generation with role-based claims
   - [ ] 3.5 Add authentication middleware configuration
   - [ ] 3.6 Configure CORS for frontend communication
   - [ ] 3.7 Implement comprehensive error handling and logging
