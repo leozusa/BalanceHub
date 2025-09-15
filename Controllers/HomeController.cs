@@ -1,27 +1,40 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
+
+namespace BalanceHub.Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class HomeController : ControllerBase
 {
-    private readonly HttpClient _httpClient;
-    private const string BackendUrl = "http://localhost:5000"; // Will be updated for production
-
-    public HomeController()
-    {
-        _httpClient = new HttpClient();
-    }
-
     [HttpGet]
     public IActionResult Get()
     {
         return Ok(new {
-            message = "BalanceHub Web API is running!",
+            message = "BalanceHub authentication API is live!",
             timestamp = DateTime.UtcNow,
-            backend_url = BackendUrl
+            version = "1.0.0",
+            status = "AUTHENTICATION ACTIVE"
         });
     }
+
+    [HttpPost("auth/login")]
+    public IActionResult Login([FromBody] LoginRequest request)
+    {
+        // Mock authentication for testing
+        return Ok(new {
+            token = $"jwt-{Guid.NewGuid().ToString()}",
+            user = new {
+                email = request?.Email ?? "test@example.com",
+                role = "Employee"
+            },
+            expiresIn = 3600
+        });
+    }
+}
+
+public class LoginRequest
+{
+    public string? Email { get; set; }
+    public string? Password { get; set; }
+    public bool RememberMe { get; set; }
 }
