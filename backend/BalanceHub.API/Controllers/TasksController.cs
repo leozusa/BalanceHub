@@ -8,10 +8,33 @@ using BalanceHub.API.Models;
 
 namespace BalanceHub.API.Controllers;
 
+/// <summary>
+/// TASK MANAGEMENT CONTROLLER - Eisenhower Matrix Intelligence API
+///
+/// This controller provides comprehensive task management capabilities powered by the
+/// Eisenhower Matrix productivity method. It includes intelligent task prioritization,
+/// time pressure analysis, work categorization, and productivity analytics.
+///
+/// AUTODISCOVERY ENDPOINTS:
+/// • GET /api/tasks              - List all tasks with advanced filtering
+/// • GET /api/tasks/{id}         - Get specific task details
+/// • POST /api/tasks             - Create new AI-prioritized task
+/// • PUT /api/tasks/{id}         - Update task with recalculation
+/// • DELETE /api/tasks/{id}      - Soft delete task
+/// • POST /api/tasks/{id}/complete - Mark task as completed
+/// • PATCH /api/tasks/{id}/priority - Manual priority override
+/// • GET /api/tasks/analytics    - Productivity insights dashboard
+///
+/// AUTHENTICATION REQUIRED:
+/// All endpoints require Bearer token authentication obtained via /api/auth/login
+/// </summary>
 [Authorize]
 [ApiController]
 [Route("api/tasks")]
-public class TasksController : ControllerBase
+[Produces("application/json")]
+[Consumes("application/json")]
+[Tags("Task Management - Eisenhower Matrix API")]
+public class TasksController : ApiControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<TasksController> _logger;
@@ -22,8 +45,82 @@ public class TasksController : ControllerBase
         _logger = logger;
     }
 
-    // GET: api/tasks
+    /// <summary>
+    /// 🔍 LIST ALL TASKS - Eisenhower Matrix Filtered Search
+    ///
+    /// Retrieve tasks with advanced filtering capabilities powered by AI prioritization.
+    /// Supports Eisenhower Matrix filtering, text search, status filtering, and pagination.
+    /// Includes real-time time pressure calculations and completion tracking.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// ## 🚀 AUTODISCOVERY: Advanced Task Filtering
+    ///
+    /// **Eisenhower Matrix Filters:**
+    /// - `matrixType=do` - High priority tasks (Q1)
+    /// - `matrixType=schedule` - Important but not urgent (Q2)
+    /// - `matrixType=delegate` - Urgent but low importance (Q3)
+    /// - `matrixType=delete` - Low priority items to consider removing (Q4)
+    ///
+    /// **Other Filters:**
+    /// - `status=todo/in-progress/completed/cancelled` - Filter by completion status
+    /// - `category=work/meetings/personal` - Custom category filtering
+    /// - `search=meeting report` - Full-text search in title and description
+    /// - `overdue=true` - Show tasks past their deadline
+    ///
+    /// **Sorting Options:**
+    /// - `sortBy=calculatedPriority` ÷ Eisenhower Matrix score (default)
+    /// - `sortBy=deadline` - Due date ordering
+    /// - `sortBy=urgency/importance` - Raw urgency/importance values
+    /// - `sortBy=createdAt/title` - Standard field sorting
+    ///
+    /// **Pagination:**
+    /// - `page=1&pageSize=50` - Control result sets
+    /// - Response headers include: `X-Total-Count, X-Page-Size, X-Current-Page`
+    ///
+    /// ## 🔐 AUTHENTICATION
+    /// Requires valid Bearer token from `/api/auth/login`
+    ///
+    /// ## 📊 RESPONSE FORMAT
+    /// Returns paginated list of task summaries with AI-powered fields
+    /// </remarks>
+    ///
+    /// <param name="status">Filter by completion status (todo/in-progress/completed/cancelled)</param>
+    /// <param name="matrixType">Eisenhower Matrix classification filter (do/schedule/delegate/delete)</param>
+    /// <param name="category">Filter by custom task category or tag</param>
+    /// <param name="search">Full-text search in task title and description</param>
+    /// <param name="overdue">Show only overdue tasks (true/false)</param>
+    /// <param name="page">Page number for pagination (default: 1)</param>
+    /// <param name="pageSize">Tasks per page (default: 50, max: 100)</param>
+    /// <param name="sortBy">Sort field (calculatedPriority, deadline, urgency, importance, createdAt, title)</param>
+    /// <param name="descending">Sort order (true=descending, false=ascending)</param>
+    ///
+    /// <returns>Paginated list of tasks with AI prioritization metadata</returns>
+    ///
+    /// <response code="200">Tasks retrieved successfully with pagination metadata</response>
+    /// <response code="401">Unauthorized - Invalid or missing JWT token</response>
+    /// <response code="500">Internal server error</response>
+    ///
+    /// <example>
+    /// **Example 1: High Priority Tasks Only**
+    /// ```http
+    /// GET /api/tasks?matrixType=do&status=todo&page=1&pageSize=20
+    /// ```
+    ///
+    /// **Example 2: Overdue Tasks Search**
+    /// ```http
+    /// GET /api/tasks?overdue=true&sortBy=deadline&descending=false
+    /// ```
+    ///
+    /// **Example 3: Meeting Tasks**
+    /// ```http
+    /// GET /api/tasks?search=meeting&category=work&sortBy=deadline
+    /// ```
+    /// </example>
     [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<TaskDto>), 200)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(500)]
     public async Task<ActionResult<IEnumerable<TaskDto>>> GetTasks(
         [FromQuery] string? status = null,
         [FromQuery] string? matrixType = null,
@@ -111,8 +208,63 @@ public class TasksController : ControllerBase
         }
     }
 
-    // GET: api/tasks/{id}
+    /// <summary>
+    /// 🔎 GET SINGLE TASK - Detailed Task Information
+    ///
+    /// Retrieve complete task details including all AI-calculated fields,
+    /// time pressure metrics, completion statistics, and Eisenhower Matrix scoring.
+    /// </summary>
+    ///
+    /// <remarks>
+    /// ## 🎯 AUTODISCOVERY: Detailed Task Analytics
+    ///
+    /// **Returns all task information including:**
+    /// - Eisenhower Matrix classification and score
+    /// - Time pressure and deadline analysis
+    /// - Completion percentages and effort tracking
+    /// - Creation/update timestamps with audit trail
+    /// - Tag and category information
+    /// - Reschedule count and productivity insights
+    ///
+    /// ## 🔐 AUTHENTICATION
+    /// Requires valid Bearer token from `/api/auth/login`
+    ///
+    /// ## 📊 RESPONSE: Complete Task Object
+    /// ```json
+    /// {
+    ///   "id": "task-uuid",
+    ///   "title": "Prepare Quarterly Report",
+    ///   "description": "...",
+    ///   "matrixType": "do",
+    ///   "calculatedPriority": 8.5,
+    ///   "timePressure": 2.1,
+    ///   "isOverdue": false,
+    ///   "timeRemainingHours": 24.5,
+    ///   "rescheduleCount": 2
+    /// }
+    /// ```
+    /// </remarks>
+    ///
+    /// <param name="id">Task unique identifier (GUID format)</param>
+    ///
+    /// <returns>Complete task object with all AI-calculated fields</returns>
+    ///
+    /// <response code="200">Task details retrieved successfully</response>
+    /// <response code="401">Unauthorized - Invalid JWT token</response>
+    /// <response code="404">Task not found or belongs to different user</response>
+    /// <response code="500">Internal server error</response>
+    ///
+    /// <example>
+    /// ```http
+    /// GET /api/tasks/123e4567-e89b-12d3-a456-426614174000
+    /// Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    /// ```
+    /// </example>
     [HttpGet("{id}")]
+    [ProducesResponseType(typeof(TaskDto), 200)]
+    [ProducesResponseType(401)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(500)]
     public async Task<ActionResult<TaskDto>> GetTask(Guid id)
     {
         try
