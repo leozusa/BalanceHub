@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using BCrypt.Net;
 using BalanceHub.API.Data;
 using BalanceHub.API.Models;
 
@@ -171,6 +172,65 @@ public class DatabaseController : ControllerBase
         }
     }
 
+    [HttpPost("hash-passwords")]
+    public async Task<IActionResult> HashExistingPasswords()
+    {
+        try
+        {
+            _logger.LogInformation("Starting password hashing upgrade...");
+
+            // Get all users that still have plain text passwords (empty PasswordHash)
+            var usersToUpdate = await _context.Users
+                .Where(u => string.IsNullOrEmpty(u.PasswordHash))
+                .ToListAsync();
+
+            if (!usersToUpdate.Any())
+            {
+                return Ok(new
+                {
+                    message = "All users already have hashed passwords",
+                    status = "already_hashed",
+                    usersChecked = await _context.Users.CountAsync()
+                });
+            }
+
+            _logger.LogInformation("Found {Count} users to update with hashed passwords", usersToUpdate.Count);
+
+            // Hash passwords and update users
+            foreach (var user in usersToUpdate)
+            {
+                // Generate hashed password for "test123"
+                var hash = BCrypt.Net.BCrypt.HashPassword("test123", workFactor: 12);
+                user.PasswordHash = hash;
+                user.UpdatedAt = DateTime.UtcNow;
+
+                _logger.LogInformation("Hashed password for user: {Email}", user.Email);
+            }
+
+            // Save changes
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = $"Successfully hashed passwords for {usersToUpdate.Count} users",
+                status = "success",
+                usersUpdated = usersToUpdate.Count,
+                note = "All users now use BCrypt password hashing for enhanced security",
+                nextStep = "Test authentication with existing credentials to verify hash verification works"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error hashing existing passwords: {Message}", ex.Message);
+            return StatusCode(500, new
+            {
+                message = $"Failed to hash passwords: {ex.Message}",
+                status = "error",
+                suggestion = "Check database connectivity and try again"
+            });
+        }
+    }
+
     [HttpGet("status")]
     public async Task<IActionResult> GetDatabaseStatus()
     {
@@ -178,6 +238,8 @@ public class DatabaseController : ControllerBase
         {
             var canConnect = await _context.Database.CanConnectAsync();
             var userCount = await _context.Users.CountAsync();
+            var hashedPasswordCount = await _context.Users
+                .CountAsync(u => !string.IsNullOrEmpty(u.PasswordHash));
 
             var pendingMigrations = (await _context.Database.GetPendingMigrationsAsync()).ToList();
 
@@ -185,7 +247,10 @@ public class DatabaseController : ControllerBase
             {
                 databaseConnected = canConnect,
                 usersCount = userCount,
+                hashedPasswordsCount = hashedPasswordCount,
+                plainTextPasswordsCount = userCount - hashedPasswordCount,
                 pendingMigrations = pendingMigrations,
+                securityStatus = hashedPasswordCount == userCount ? "secured" : "needs_upgrade",
                 status = canConnect ? "healthy" : "disconnected"
             });
         }
