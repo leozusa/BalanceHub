@@ -9,7 +9,7 @@ builder.Services.AddOpenApi();
 
 // Add application services for authentication and database
 builder.Services.AddDbContext<ApplicationDbContext>(
-    options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
         .LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information));
 
 builder.Services.AddAuthentication("Bearer")           // Configure JWT Bearer Authentication
