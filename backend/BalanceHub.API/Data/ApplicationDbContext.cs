@@ -21,6 +21,7 @@ public class ApplicationDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
+            // Use SQLite for development - this will be overridden by production DI configuration
             optionsBuilder.UseSqlite("Data Source=BalanceHub.db");
         }
     }
