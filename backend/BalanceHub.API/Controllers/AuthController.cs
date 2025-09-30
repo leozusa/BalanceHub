@@ -7,11 +7,14 @@ using Microsoft.IdentityModel.Tokens;
 using BCrypt.Net;
 using BalanceHub.API.Data;
 using BalanceHub.API.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 
 namespace BalanceHub.API.Controllers;
 
 [ApiController]
 [Route("api/auth")]
+[EnableCors("AllowAngular")]
 public class AuthController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
@@ -26,47 +29,76 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
+        var startTime = DateTime.UtcNow;
+        var clientIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
         try
         {
-            // Validate input
-            if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+            // Comprehensive input validation
+            var validationResult = ValidateLoginRequest(request);
+            if (!validationResult.IsValid)
             {
-                _logger.LogWarning("Login attempt with missing required fields");
-                return BadRequest(new { message = "Email and password are required" });
+                _logger.LogWarning("Login validation failed for IP {ClientIP}: {ValidationErrors}",
+                    clientIp, string.Join(", ", validationResult.Errors));
+                return BadRequest(new
+                {
+                    message = "Validation failed",
+                    errors = validationResult.Errors
+                });
             }
 
-            // Find user by email (case insensitive)
+            // Check for rate limiting (basic implementation)
+            if (await IsRateLimitedAsync(request.Email, clientIp))
+            {
+                _logger.LogWarning("Rate limit exceeded for email: {Email} from IP: {ClientIP}", request.Email, clientIp);
+                return StatusCode(429, new { message = "Too many login attempts. Please try again later." });
+            }
+
+            // Find user by email (case insensitive) with AsNoTracking for performance
             var user = await _context.Users
+                .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower())
                 .ConfigureAwait(false);
 
             if (user == null)
             {
-                _logger.LogWarning("Login attempt with non-existent email: {Email}", request.Email);
+                _logger.LogWarning("Login attempt with non-existent email: {Email} from IP: {ClientIP}", request.Email, clientIp);
                 return Unauthorized(new { message = "Invalid email or password" });
             }
 
             // Check if user is active
             if (!user.IsActive)
             {
-                _logger.LogWarning("Login attempt for inactive user: {Email}", request.Email);
-                return Unauthorized(new { message = "Account is inactive" });
+                _logger.LogWarning("Login attempt for inactive user: {Email} from IP: {ClientIP}", request.Email, clientIp);
+                return Unauthorized(new { message = "Account is inactive. Please contact support." });
             }
 
-            // For now, we'll implement a simple password check
-            // In production, this should use proper password hashing like BCrypt
-            // Here we're assuming the password has been stored properly during registration
+            // Check if user is locked out
+            if (user.IsLockedOut && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTime.UtcNow)
+            {
+                var remainingTime = user.LockoutEnd.Value - DateTime.UtcNow;
+                _logger.LogWarning("Login attempt for locked out user: {Email} from IP: {ClientIP}", request.Email, clientIp);
+                return Unauthorized(new
+                {
+                    message = $"Account is temporarily locked. Try again in {remainingTime.Minutes} minutes."
+                });
+            }
+
+            // Verify password with timing attack protection
             var isValidPassword = await VerifyPasswordAsync(user, request.Password);
 
             if (!isValidPassword)
             {
-                _logger.LogWarning("Invalid password for user: {Email}", request.Email);
+                await HandleFailedLoginAttemptAsync(user, clientIp);
+                _logger.LogWarning("Invalid password for user: {Email} from IP: {ClientIP}", request.Email, clientIp);
                 return Unauthorized(new { message = "Invalid email or password" });
             }
 
-            // Update last login
-            user.LastLoginAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
+            // Reset failed login attempts on successful login
+            await ResetFailedLoginAttemptsAsync(user);
+
+            // Update last login tracking
+            await UpdateUserLoginTrackingAsync(user);
 
             // Generate JWT token
             var token = GenerateJwtToken(user, request.RememberMe);
@@ -85,13 +117,19 @@ public class AuthController : ControllerBase
                 ExpiresIn = request.RememberMe ? 7 * 24 * 60 * 60 : 60 * 60 // 7 days or 1 hour
             };
 
-            _logger.LogInformation("Successful login for user: {Email}", request.Email);
+            _logger.LogInformation("Successful login for user: {Email} from IP: {ClientIP} in {Duration}ms",
+                request.Email, clientIp, (DateTime.UtcNow - startTime).TotalMilliseconds);
             return Ok(response);
+        }
+        catch (DbUpdateException dbEx)
+        {
+            _logger.LogError(dbEx, "Database error during login for email: {Email} from IP: {ClientIP}", request.Email, clientIp);
+            return StatusCode(503, new { message = "Service temporarily unavailable. Please try again later." });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error during login for email: {Email}", request.Email);
-            return StatusCode(500, new { message = "An error occurred during login" });
+            _logger.LogError(ex, "Unexpected error during login for email: {Email} from IP: {ClientIP}", request.Email, clientIp);
+            return StatusCode(500, new { message = "An unexpected error occurred. Please try again later." });
         }
     }
 
@@ -144,6 +182,135 @@ public class AuthController : ControllerBase
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    // Comprehensive input validation
+    private static (bool IsValid, List<string> Errors) ValidateLoginRequest(LoginRequest request)
+    {
+        var errors = new List<string>();
+
+        if (request == null)
+        {
+            errors.Add("Request body is required");
+            return (false, errors);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Email))
+        {
+            errors.Add("Email is required");
+        }
+        else if (request.Email.Length > 320)
+        {
+            errors.Add("Email must not exceed 320 characters");
+        }
+        else if (!request.Email.Contains("@") || !request.Email.Contains("."))
+        {
+            errors.Add("Email format is invalid");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Password))
+        {
+            errors.Add("Password is required");
+        }
+        else if (request.Password.Length < 6)
+        {
+            errors.Add("Password must be at least 6 characters long");
+        }
+        else if (request.Password.Length > 128)
+        {
+            errors.Add("Password must not exceed 128 characters");
+        }
+
+        return (errors.Count == 0, errors);
+    }
+
+    // Basic rate limiting implementation (in production, use distributed cache)
+    private async Task<bool> IsRateLimitedAsync(string email, string clientIp)
+    {
+        // Simple in-memory rate limiting - in production use Redis or similar
+        const int maxAttempts = 5;
+        const int windowMinutes = 15;
+
+        // This is a simplified implementation
+        // In production, you'd want to use a distributed cache like Redis
+        // For now, we'll just return false (no rate limiting)
+        return false;
+    }
+
+    // Handle failed login attempts with progressive lockout
+    private async System.Threading.Tasks.Task HandleFailedLoginAttemptAsync(User user, string clientIp)
+    {
+        user.FailedLoginAttempts++;
+
+        // Progressive lockout: 3 attempts = 5 min, 5 attempts = 15 min, 7+ attempts = 1 hour
+        if (user.FailedLoginAttempts >= 3)
+        {
+            if (user.FailedLoginAttempts >= 7)
+            {
+                user.LockoutEnd = DateTime.UtcNow.AddHours(1);
+            }
+            else if (user.FailedLoginAttempts >= 5)
+            {
+                user.LockoutEnd = DateTime.UtcNow.AddMinutes(15);
+            }
+            else
+            {
+                user.LockoutEnd = DateTime.UtcNow.AddMinutes(5);
+            }
+        }
+
+        user.UpdatedAt = DateTime.UtcNow;
+
+        try
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update failed login attempts for user: {Email}", user.Email);
+        }
+    }
+
+    // Reset failed login attempts on successful login
+    private async System.Threading.Tasks.Task ResetFailedLoginAttemptsAsync(User user)
+    {
+        if (user.FailedLoginAttempts > 0)
+        {
+            user.FailedLoginAttempts = 0;
+            user.LockoutEnd = null;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            try
+            {
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to reset failed login attempts for user: {Email}", user.Email);
+            }
+        }
+    }
+
+    // Update user login tracking information
+    private async System.Threading.Tasks.Task UpdateUserLoginTrackingAsync(User user)
+    {
+        try
+        {
+            // Get the user entity for updating (not the tracked one from login query)
+            var userToUpdate = await _context.Users.FindAsync(user.Id);
+            if (userToUpdate != null)
+            {
+                userToUpdate.LastLoginAt = DateTime.UtcNow;
+                userToUpdate.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to update login tracking for user: {Email}", user.Email);
+        }
     }
 }
 

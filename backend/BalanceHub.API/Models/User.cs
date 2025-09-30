@@ -34,6 +34,13 @@ public class User
 
     public DateTime? LastLoginAt { get; set; }
 
+    // Security properties for account lockout
+    public int FailedLoginAttempts { get; set; } = 0;
+
+    public DateTime? LockoutEnd { get; set; }
+
+    public bool IsLockedOut => LockoutEnd.HasValue && LockoutEnd.Value > DateTime.UtcNow;
+
     // Calculated properties
     [System.ComponentModel.DataAnnotations.Schema.NotMapped]
     public string FullName => $"{FirstName ?? string.Empty} {LastName ?? string.Empty}".Trim();
