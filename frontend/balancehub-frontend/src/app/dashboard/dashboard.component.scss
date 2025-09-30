@@ -1,0 +1,273 @@
+.dashboard-container {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  padding: 1rem;
+
+  .dashboard-nav {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+
+    ::ng-deep {
+      .p-menubar {
+        padding: 0.5rem 1rem;
+        .p-menubar-start .app-logo h3 {
+          color: white;
+          margin: 0;
+          font-size: 1.5rem;
+          font-weight: 600;
+        }
+        .p-menuitem-link {
+          color: rgba(255, 255, 255, 0.8);
+          padding: 0.5rem 1rem;
+          border-radius: 0.5rem;
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+          }
+        }
+      }
+    }
+  }
+
+  .dashboard-content {
+    .welcome-section {
+      .welcome-card {
+        ::ng-deep {
+          .p-card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+            .p-card-header {
+              padding: 1rem;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+              .welcome-header {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+
+                i {
+                  font-size: 1.5rem;
+                  color: white;
+                }
+
+                h2 {
+                  color: white;
+                  margin: 0;
+                  font-size: 1.5rem;
+                  font-weight: 600;
+                }
+              }
+            }
+
+            .p-card-body {
+              padding: 1.5rem;
+
+              .welcome-body {
+                .role-info {
+                  margin-bottom: 1rem;
+                  font-size: 1rem;
+                  color: #4b5563;
+                }
+
+                .dashboard-stats {
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                  gap: 1rem;
+                  margin-bottom: 1.5rem;
+
+                  .stat-card {
+                    background: white;
+                    padding: 1rem;
+                    border-radius: 0.5rem;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                    text-align: center;
+
+                    .stat-icon {
+                      width: 2rem;
+                      height: 2rem;
+                      border-radius: 50%;
+                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      margin: 0 auto 0.5rem;
+
+                      i {
+                        font-size: 1rem;
+                        color: white;
+                      }
+                    }
+
+                    .stat-info {
+                      h3 {
+                        margin: 0;
+                        font-size: 1.5rem;
+                        font-weight: 700;
+                        color: #1f2937;
+                      }
+
+                      p {
+                        margin: 0.25rem 0 0 0;
+                        color: #6b7280;
+                        font-size: 0.75rem;
+                        font-weight: 500;
+                      }
+                    }
+                  }
+                }
+
+                .quick-actions {
+                  h3 {
+                    margin: 0 0 1rem 0;
+                    color: #1f2937;
+                    font-size: 1rem;
+                    font-weight: 600;
+                  }
+
+                  .action-buttons {
+                    display: flex;
+                    gap: 0.5rem;
+                    flex-wrap: wrap;
+
+                    .action-btn {
+                      padding: 0.5rem 1rem;
+                      font-weight: 500;
+                      border-radius: 0.25rem;
+                      font-size: 0.875rem;
+
+                      &.primary {
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        border: none;
+                        color: white;
+                      }
+
+                      &.secondary {
+                        background: white;
+                        border: 1px solid #667eea;
+                        color: #667eea;
+                      }
+
+                      &.tertiary {
+                        background: #f3f4f6;
+                        border: 1px solid #d1d5db;
+                        color: #374151;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .activity-section {
+      .activity-card {
+        ::ng-deep {
+          .p-card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+
+            .p-card-header {
+              padding: 1rem;
+              background: white;
+
+              .activity-header {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+
+                i {
+                  font-size: 1rem;
+                  color: #667eea;
+                }
+
+                h3 {
+                  margin: 0;
+                  color: #1f2937;
+                  font-size: 1rem;
+                  font-weight: 600;
+                }
+              }
+            }
+
+            .p-card-body {
+              padding: 1rem;
+
+              .activity-body {
+                .no-activity {
+                  text-align: center;
+                  color: #6b7280;
+
+                  i {
+                    font-size: 2rem;
+                    color: #d1d5db;
+                    margin-bottom: 0.5rem;
+                  }
+
+                  p {
+                    margin: 0 0 0.25rem 0;
+                    font-size: 0.875rem;
+                    font-weight: 500;
+                  }
+
+                  small {
+                    color: #9ca3af;
+                    font-size: 0.75rem;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0.5rem;
+
+    .dashboard-content {
+      .welcome-section {
+        .welcome-card {
+          ::ng-deep {
+            .p-card {
+              .p-card-body {
+                padding: 1rem;
+
+                .welcome-body {
+                  .dashboard-stats {
+                    grid-template-columns: 1fr;
+                    gap: 0.5rem;
+
+                    .stat-card {
+                      padding: 0.75rem;
+                    }
+                  }
+
+                  .quick-actions {
+                    .action-buttons {
+                      flex-direction: column;
+
+                      .action-btn {
+                        width: 100%;
+                        justify-content: center;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

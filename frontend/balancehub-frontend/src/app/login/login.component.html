@@ -1,0 +1,119 @@
+<div class="login-container">
+  <p-card class="login-card">
+    <ng-template pTemplate="header">
+      <div class="login-header">
+        <h2>BalanceHub</h2>
+        <p>Welcome back! Please sign in to your account.</p>
+      </div>
+    </ng-template>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Error Message -->
+      <p-message
+        *ngIf="errorMessage"
+        severity="error"
+        [text]="errorMessage"
+        class="error-message">
+      </p-message>
+
+      <!-- Email Field -->
+      <div class="form-field">
+        <label for="email" class="form-label">Email Address</label>
+        <input
+          id="email"
+          type="email"
+          pInputText
+          formControlName="email"
+          placeholder="Enter your email"
+          class="form-input"
+          [class.ng-invalid]="email?.invalid && email?.touched">
+        <small
+          *ngIf="email?.invalid && email?.touched"
+          class="form-error">
+          <span *ngIf="email?.errors?.['required']">Email is required</span>
+          <span *ngIf="email?.errors?.['email']">Please enter a valid email address</span>
+        </small>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-field">
+        <label for="password" class="form-label">Password</label>
+        <p-password
+          id="password"
+          formControlName="password"
+          placeholder="Enter your password"
+          [feedback]="false"
+          [toggleMask]="true"
+          styleClass="form-input"
+          [class.ng-invalid]="password?.invalid && password?.touched">
+        </p-password>
+        <small
+          *ngIf="password?.invalid && password?.touched"
+          class="form-error">
+          <span *ngIf="password?.errors?.['required']">Password is required</span>
+          <span *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters</span>
+        </small>
+      </div>
+
+      <!-- Role Selection -->
+      <div class="form-field">
+        <label class="form-label">Role</label>
+        <div class="role-selection">
+          <div class="role-option" *ngFor="let roleOption of roles">
+            <input
+              type="radio"
+              [id]="'role-' + roleOption.value"
+              [value]="roleOption.value"
+              formControlName="role"
+              name="role">
+            <label [for]="'role-' + roleOption.value" class="role-label">
+              {{ roleOption.label }}
+            </label>
+          </div>
+        </div>
+        <small
+          *ngIf="role?.invalid && role?.touched"
+          class="form-error">
+          Please select a role
+        </small>
+      </div>
+
+      <!-- Remember Me -->
+      <div class="form-field checkbox-field">
+        <p-checkbox
+          id="rememberMe"
+          formControlName="rememberMe"
+          label="Remember me"
+          binary="true">
+        </p-checkbox>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-field submit-field">
+        <p-button
+          type="submit"
+          label="Sign In"
+          [loading]="loading"
+          [disabled]="loginForm.invalid"
+          styleClass="login-button">
+        </p-button>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div *ngIf="loading" class="loading-container">
+        <p-progressSpinner
+          [style]="{'width': '30px', 'height': '30px'}"
+          strokeWidth="3">
+        </p-progressSpinner>
+        <span>Signing you in...</span>
+      </div>
+    </form>
+
+    <ng-template pTemplate="footer">
+      <div class="login-footer">
+        <p>Don't have an account? <a href="#" class="link">Contact your administrator</a></p>
+        <p><a href="#" class="link">Forgot your password?</a></p>
+      </div>
+    </ng-template>
+  </p-card>
+</div>

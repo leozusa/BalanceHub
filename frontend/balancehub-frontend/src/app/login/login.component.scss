@@ -1,0 +1,232 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 1rem;
+
+  .login-card {
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+
+    .login-header {
+      text-align: center;
+      padding: 2rem 2rem 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+      h2 {
+        color: white;
+        margin: 0 0 0.5rem 0;
+        font-size: 2rem;
+        font-weight: 600;
+      }
+
+      p {
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+        font-size: 0.9rem;
+      }
+    }
+
+    .login-form {
+      padding: 2rem;
+
+      .form-field {
+        margin-bottom: 1.5rem;
+
+        .form-label {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+          color: #374151;
+          font-size: 0.875rem;
+        }
+
+        .form-input {
+          width: 100%;
+
+          &.ng-invalid {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 1px #ef4444;
+          }
+        }
+
+        .form-error {
+          color: #ef4444;
+          font-size: 0.75rem;
+          margin-top: 0.25rem;
+          display: block;
+        }
+
+        &.checkbox-field {
+          margin-top: 1rem;
+
+          ::ng-deep {
+            .p-checkbox-label {
+              font-size: 0.875rem;
+              color: #6b7280;
+            }
+          }
+        }
+
+        &.submit-field {
+          margin-top: 2rem;
+          margin-bottom: 0;
+        }
+      }
+
+      .role-selection {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+
+        .role-option {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          input[type="radio"] {
+            margin: 0;
+            width: 1rem;
+            height: 1rem;
+            accent-color: #667eea;
+          }
+
+          .role-label {
+            font-size: 0.875rem;
+            color: #374151;
+            cursor: pointer;
+            font-weight: 500;
+            margin: 0;
+          }
+        }
+      }
+
+      .error-message {
+        margin-bottom: 1rem;
+        width: 100%;
+      }
+
+      .login-button {
+        width: 100%;
+        height: 3rem;
+        font-size: 1rem;
+        font-weight: 500;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+
+        &:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+
+      .loading-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        color: #6b7280;
+        font-size: 0.875rem;
+      }
+    }
+
+    .login-footer {
+      text-align: center;
+      padding: 1rem 2rem 2rem;
+      background-color: #f9fafb;
+
+      p {
+        margin: 0.5rem 0;
+        font-size: 0.875rem;
+        color: #6b7280;
+
+        .link {
+          color: #667eea;
+          text-decoration: none;
+          font-weight: 500;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .login-container {
+    padding: 0.5rem;
+
+    .login-card {
+      .login-header {
+        padding: 1.5rem 1.5rem 1rem;
+
+        h2 {
+          font-size: 1.5rem;
+        }
+      }
+
+      .login-form {
+        padding: 1.5rem;
+      }
+
+      .login-footer {
+        padding: 1rem 1.5rem 1.5rem;
+      }
+    }
+  }
+}
+
+// Accessibility improvements
+.form-field {
+  input:focus,
+  p-dropdown:focus,
+  p-password:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+  }
+}
+
+// Dark mode support (optional)
+@media (prefers-color-scheme: dark) {
+  .login-container {
+    .login-card {
+      .login-form {
+        .form-label {
+          color: #f3f4f6;
+        }
+
+        .form-error {
+          color: #fca5a5;
+        }
+      }
+
+      .login-footer {
+        background-color: #1f2937;
+
+        p {
+          color: #9ca3af;
+
+          .link {
+            color: #93c5fd;
+          }
+        }
+      }
+    }
+  }
+}

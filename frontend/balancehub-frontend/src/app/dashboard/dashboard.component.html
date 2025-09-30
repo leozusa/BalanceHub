@@ -1,0 +1,104 @@
+<div class="dashboard-container">
+  <!-- Navigation Menu -->
+  <p-menubar [model]="menuItems" class="dashboard-nav">
+    <ng-template pTemplate="start">
+      <div class="app-logo">
+        <h3>BalanceHub</h3>
+      </div>
+    </ng-template>
+  </p-menubar>
+
+  <!-- Main Content -->
+  <div class="dashboard-content">
+    <div class="welcome-section">
+      <p-card class="welcome-card">
+        <ng-template pTemplate="header">
+          <div class="welcome-header">
+            <i class="pi pi-home"></i>
+            <h2>{{ getWelcomeMessage() }}</h2>
+          </div>
+        </ng-template>
+
+        <div class="welcome-body">
+          <p class="role-info">
+            <i class="pi pi-user"></i>
+            <strong>Role:</strong> {{ getUserRole() }}
+          </p>
+
+          <div class="dashboard-stats">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="pi pi-list"></i>
+              </div>
+              <div class="stat-info">
+                <h3>0</h3>
+                <p>Active Tasks</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="pi pi-check-circle"></i>
+              </div>
+              <div class="stat-info">
+                <h3>0</h3>
+                <p>Completed Today</p>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="pi pi-clock"></i>
+              </div>
+              <div class="stat-info">
+                <h3>0</h3>
+                <p>Hours Logged</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="action-buttons">
+              <p-button
+                label="New Task"
+                icon="pi pi-plus"
+                styleClass="action-btn primary">
+              </p-button>
+              <p-button
+                label="View Tasks"
+                icon="pi pi-list"
+                styleClass="action-btn secondary">
+              </p-button>
+              <p-button
+                label="Reports"
+                icon="pi pi-chart-bar"
+                styleClass="action-btn tertiary">
+              </p-button>
+            </div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="activity-section">
+      <p-card class="activity-card">
+        <ng-template pTemplate="header">
+          <div class="activity-header">
+            <i class="pi pi-clock"></i>
+            <h3>Recent Activity</h3>
+          </div>
+        </ng-template>
+
+        <div class="activity-body">
+          <div class="no-activity">
+            <i class="pi pi-info-circle"></i>
+            <p>No recent activity to display</p>
+            <small>Get started by creating your first task!</small>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+</div>
