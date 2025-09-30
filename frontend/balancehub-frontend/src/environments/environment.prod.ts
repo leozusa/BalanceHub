@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:5234/api' // This will be updated by the deployment script
+  apiUrl: 'https://balancehub-api.azurewebsites.net/api' // This will be updated by the deployment script
 };

@@ -65,6 +65,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", builder =>
     {
+        // Allow specific origins for development
         builder.WithOrigins("http://localhost:4200", "https://localhost:4200")
                .AllowAnyMethod()
                .AllowAnyHeader()
@@ -86,6 +87,7 @@ app.UseSwaggerUI(options =>                              // Enable Swagger UI
     options.DisplayRequestDuration();                    // Show request duration
 });
 
+app.UseCors("AllowAngular");  // Add CORS middleware before other middleware
 app.UseHttpsRedirection();
 
 var summaries = new[]

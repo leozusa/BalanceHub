@@ -25,7 +25,7 @@ fi
 echo "✅ Prerequisites check passed"
 
 # Configuration - Update these values for your deployment
-RESOURCE_GROUP="BalanceHub-RG"
+RESOURCE_GROUP="BalanceHubProd"
 BACKEND_APP_NAME="balancehub-api"
 FRONTEND_APP_NAME="balancehub-frontend"
 LOCATION="East US"

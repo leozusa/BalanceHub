@@ -14,7 +14,6 @@ namespace BalanceHub.API.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-[EnableCors("AllowAngular")]
 public class AuthController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
@@ -34,28 +33,13 @@ public class AuthController : ControllerBase
 
         try
         {
-            // Comprehensive input validation
-            var validationResult = ValidateLoginRequest(request);
-            if (!validationResult.IsValid)
+            // Basic input validation
+            if (request == null || string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
             {
-                _logger.LogWarning("Login validation failed for IP {ClientIP}: {ValidationErrors}",
-                    clientIp, string.Join(", ", validationResult.Errors));
-                return BadRequest(new
-                {
-                    message = "Validation failed",
-                    errors = validationResult.Errors
-                });
+                return BadRequest(new { message = "Email and password are required" });
             }
 
-            // Check for rate limiting (basic implementation)
-            var isRateLimited = await IsRateLimitedAsync(request.Email, clientIp).ConfigureAwait(false);
-            if (isRateLimited)
-            {
-                _logger.LogWarning("Rate limit exceeded for email: {Email} from IP: {ClientIP}", request.Email, clientIp);
-                return StatusCode(429, new { message = "Too many login attempts. Please try again later." });
-            }
-
-            // Find user by email (case insensitive) with AsNoTracking for performance
+            // Find user by email (case insensitive)
             var user = await _context.Users
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Email.ToLower() == request.Email.ToLower())
@@ -63,43 +47,22 @@ public class AuthController : ControllerBase
 
             if (user == null)
             {
-                _logger.LogWarning("Login attempt with non-existent email: {Email} from IP: {ClientIP}", request.Email, clientIp);
                 return Unauthorized(new { message = "Invalid email or password" });
             }
 
             // Check if user is active
             if (!user.IsActive)
             {
-                _logger.LogWarning("Login attempt for inactive user: {Email} from IP: {ClientIP}", request.Email, clientIp);
                 return Unauthorized(new { message = "Account is inactive. Please contact support." });
             }
 
-            // Check if user is locked out
-            if (user.IsLockedOut && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTime.UtcNow)
-            {
-                var remainingTime = user.LockoutEnd.Value - DateTime.UtcNow;
-                _logger.LogWarning("Login attempt for locked out user: {Email} from IP: {ClientIP}", request.Email, clientIp);
-                return Unauthorized(new
-                {
-                    message = $"Account is temporarily locked. Try again in {remainingTime.Minutes} minutes."
-                });
-            }
-
-            // Verify password with timing attack protection
-            var isValidPassword = await VerifyPasswordAsync(user, request.Password);
+            // Simple password verification (for now, just check against plain text for test users)
+            bool isValidPassword = await VerifyPasswordAsync(user, request.Password);
 
             if (!isValidPassword)
             {
-                await HandleFailedLoginAttemptAsync(user, clientIp);
-                _logger.LogWarning("Invalid password for user: {Email} from IP: {ClientIP}", request.Email, clientIp);
                 return Unauthorized(new { message = "Invalid email or password" });
             }
-
-            // Reset failed login attempts on successful login
-            await ResetFailedLoginAttemptsAsync(user);
-
-            // Update last login tracking
-            await UpdateUserLoginTrackingAsync(user);
 
             // Generate JWT token
             var token = GenerateJwtToken(user, request.RememberMe);
@@ -118,18 +81,14 @@ public class AuthController : ControllerBase
                 ExpiresIn = request.RememberMe ? 7 * 24 * 60 * 60 : 60 * 60 // 7 days or 1 hour
             };
 
-            _logger.LogInformation("Successful login for user: {Email} from IP: {ClientIP} in {Duration}ms",
-                request.Email, clientIp, (DateTime.UtcNow - startTime).TotalMilliseconds);
+            _logger.LogInformation("Successful login for user: {Email} from IP: {ClientIP}",
+                request.Email, clientIp);
             return Ok(response);
-        }
-        catch (DbUpdateException dbEx)
-        {
-            _logger.LogError(dbEx, "Database error during login for email: {Email} from IP: {ClientIP}", request.Email, clientIp);
-            return StatusCode(503, new { message = "Service temporarily unavailable. Please try again later." });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error during login for email: {Email} from IP: {ClientIP}", request.Email, clientIp);
+            _logger.LogError(ex, "Unexpected error during login for email: {Email} from IP: {ClientIP}",
+                request?.Email, clientIp);
             return StatusCode(500, new { message = "An unexpected error occurred. Please try again later." });
         }
     }
