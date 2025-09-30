@@ -418,67 +418,67 @@ curl -X GET https://balancehub-backend.whitebeach-2c3d67ea.azurecontainerapps.io
 # Expected: {"status":"Healthy","timestamp":"2025-09-16T14:22:28.556Z"}
 ```
 
-### **Authentication Test:**
-```bash
-login_result=$(curl -s -X POST \
-  https://balancehub-backend.whitebeach-2c3d67ea.azurecontainerapps.io/api/auth/login \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"john.doe@example.com","password":"test123"}')
+### **🔬 SWAGGER INTERACTIVE DOCUMENTATION - PRODUCTION READY!**
 
-token=$(echo $login_result | jq -r '.token')
-echo "JWT Token: $token"
+**🎯 ACCESS SWAGGER UI (Browser):**
+```bash
+# 🔗 BROWSER LINK - Interactive API Testing Interface
+https://balancehub-backend.whitebeach-2c3d67ea.azurecontainerapps.io/swagger/index.html
+
+# 🔗 SWAGGER JSON - Machine-Readable API Specification
+https://balancehub-backend.whitebeach-2c3d67ea.azurecontainerapps.io/swagger/v1/swagger.json
+
+# 🔗 OpenAPI YAML - Alternative Format
+https://balancehub-backend.whitebeach-2c3d67ea.azurecontainerapps.io/swagger/v1/swagger.yaml
 ```
 
-### **Task Creation Test:**
-```bash
-curl -X POST \
-  https://balancehub-backend.whitebeach-2c3d67ea.azurecontainerapps.io/api/tasks \
-  -H "Authorization: Bearer $token" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "title": "AI Test Task",
-    "urgency": 5,
-    "importance": 6,
-    "estimatedHours": 2
-  }'
-```
+#### **✨ SWAGGER FEATURES:**
 
----
+1. **🎮 Interactive Testing** - Test all endpoints directly in browser
+2. **📖 Detailed Documentation** - Every parameter explained with examples
+3. **🔐 JWT Authentication** - Built-in token handling for protected routes
+4. **📊 Response Schemas** - See exact JSON response formats
+5. **🔧 Request Builder** - Pre-filled example requests for each endpoint
+6. **📈 Real-time Testing** - Hit production APIs instantly for validation
+7. **🚦 Auto-Generated Examples** - Curl commands and request/response samples
 
-## 🎉 **PRODUCTION DEPLOYMENT STATUS**
+#### **📝 SWAGGER ENDPOINTS DOCUMENTED:**
 
-✅ **Container App**: `balancehub-backend--0000007` (Running)
-✅ **Database**: Azure SQL with Tasks table migration
-✅ **Authentication**: JWT + BCrypt operational
-✅ **API Documentation**: Complete with examples
-✅ **Eisenhower Matrix**: Live AI prioritization
-✅ **Auto-Scaling**: Configured for high availability
-✅ **Monitoring**: Azure Insights configured
-✅ **Security**: Enterprise-grade with secrets
+**🗂️ TASK MANAGEMENT (Eisenhower API):**
+- `GET /api/tasks` - Advanced filtering with 10+ parameters
+- `GET /api/tasks/{id}` - Individual task details with all AI fields
+- `POST /api/tasks` - Create AI-prioritized tasks (auto-calculates priority)
+- `PUT /api/tasks/{id}` - Update tasks with intelligence recalculation
+- `PATCH /api/tasks/{id}/priority` - Manual priority overrides
+- `POST /api/tasks/{id}/complete` - Mark complete with time tracking
+- `DELETE /api/tasks/{id}` - Soft delete with hard delete option
+- `GET /api/tasks/analytics` - Productivity insights dashboard
 
----
+**🔐 AUTHENTICATION:**
+- `POST /api/auth/login` - JWT token generation
+- `POST /api/auth/register` - Account creation
+- `GET /api/auth/verify` - Token validation
 
-## 🚀 **NEXT STEPS FOR DEVELOPMENT**
+**🏥 HEALTH CHECKS:**
+- `GET /health` - Simple health status
+- `GET /health/detailed` - Database connectivity check
+- `GET /health/intelligence` - Eisenhower AI status
 
-1. **Frontend Development**:
-   ```bash
-   cd frontend/balancehub
-   npm install
-   ng serve --port 4200
-   ```
+#### **🧪 HOW TO USE SWAGGER:**
 
-2. **Add New AI Features**:
-   - Deadline prediction algorithms
-   - Effort estimation ML models
-   - Team collaboration features
-   - Mobile app development
+1. **📱 Open in Browser** - Click the swagger link above
+2. **🔐 Authenticate** - Use login endpoint to get JWT token
+3. **🎮 Test Endpoints** - Click "TRY IT OUT" on any method
+4. **📊 View Results** - See actual production responses
+5. **📝 Copy Commands** - Generate curl/Postman equivalents
 
-3. **Scale Infrastructure**:
-   - Database read replicas
-   - CDN for static assets
-   - Multi-region deployment
-   - Advanced caching layers
+#### **💡 SWAGGER ADVANTAGES:**
 
+✅ **No Extra Setup** - Works directly in browser  
+✅ **Interactive** - Type/edit parameters and see results immediately  
+✅ **Complete Coverage** - All 15+ endpoints documented with examples  
+✅ **Production Testing** - Test against live Azure infrastructure  
+✅ **Authentication Flow** - Seamlessly handle JWT tokens  
 ---
 
 ## 📞 **SUPPORT & DOCUMENTATION**
