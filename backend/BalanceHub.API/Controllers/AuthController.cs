@@ -48,7 +48,8 @@ public class AuthController : ControllerBase
             }
 
             // Check for rate limiting (basic implementation)
-            if (await IsRateLimitedAsync(request.Email, clientIp))
+            var isRateLimited = await IsRateLimitedAsync(request.Email, clientIp).ConfigureAwait(false);
+            if (isRateLimited)
             {
                 _logger.LogWarning("Rate limit exceeded for email: {Email} from IP: {ClientIP}", request.Email, clientIp);
                 return StatusCode(429, new { message = "Too many login attempts. Please try again later." });
@@ -228,12 +229,11 @@ public class AuthController : ControllerBase
     private async Task<bool> IsRateLimitedAsync(string email, string clientIp)
     {
         // Simple in-memory rate limiting - in production use Redis or similar
-        const int maxAttempts = 5;
-        const int windowMinutes = 15;
-
-        // This is a simplified implementation
-        // In production, you'd want to use a distributed cache like Redis
         // For now, we'll just return false (no rate limiting)
+        // TODO: Implement proper rate limiting with distributed cache
+#pragma warning disable CS1998 // Async method lacks 'await' operators
+        await System.Threading.Tasks.Task.CompletedTask; // Suppress async warning until implementation is added
+#pragma warning restore CS1998
         return false;
     }
 

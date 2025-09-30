@@ -451,7 +451,10 @@ public class TasksController : ApiControllerBase
             if (task == null || task.UserId != userId.Value)
                 return NotFound();
 
-            task.MarkCompleted(completeDto?.ActualHours ?? task.ActualHours);
+#pragma warning disable CS8629 // Nullable value type may be null
+            var actualHours = completeDto?.ActualHours ?? (task.ActualHours > 0 ? task.ActualHours : 1.0);
+#pragma warning restore CS8629
+            task.MarkCompleted(actualHours);
 
             await _context.SaveChangesAsync();
 
